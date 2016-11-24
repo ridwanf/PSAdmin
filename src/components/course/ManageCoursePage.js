@@ -7,7 +7,6 @@ import CourseForm from './CourseForm';
 class ManageCoursePage extends React.Component {
   constructor(props, context) {
     super(props,context);
-
     this.state ={
       course: Object.assign({},this.props.course),
       errors: {}
@@ -27,6 +26,7 @@ class ManageCoursePage extends React.Component {
   saveCourse(event) {
     event.preventDefault();
     this.props.actions.saveCourse(this.state.course);
+    this.context.router.push('/courses');
   }
 
   render(){
@@ -47,26 +47,42 @@ ManageCoursePage.propTypes = {
   actions: PropTypes.object.isRequired
 };
 
-  function mapStateToProps(state,ownProps) {
-    let course = {id: '', watchHref: '', title: '', authorId: '', length: '', category: ''};
+//pull in the react router context so router is available on this.context.router.
+ManageCoursePage.contextTypes = {
+router: PropTypes.object.isRequired
+};
 
-    const authorsFormattedForDropdown = state.authors.map(author => {
-      return {
-        value: author.id,
-        text: author.firstName + ' ' + author.lastName
-      };
-    });
+function getCourseById(courses, id) {
+  const course = courses.filter(course => course.id === id);
+  if (course)
+    return course[0];
+  return null;
+}
 
-    return {
-      course:course,
-      authors: authorsFormattedForDropdown
-    };
+function mapStateToProps(state,ownProps) {
+  const courseId = ownProps.params.id;
+  let course = {id: '', watchHref: '', title: '', authorId: '', length: '', category: ''};
+
+  if (courseId > state.course.length > 0) {
+    course = getCourseById(state.courses, courseId);
   }
-
-  function mapDispatchToProps(dispatch) {
+  const authorsFormattedForDropdown = state.authors.map(author => {
     return {
-      actions: bindActionCreators(courseActions, dispatch)
+      value: author.id,
+      text: author.firstName + ' ' + author.lastName
     };
-  }
+  });
+
+  return {
+    course:course,
+    authors: authorsFormattedForDropdown
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators(courseActions, dispatch)
+  };
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(ManageCoursePage);
