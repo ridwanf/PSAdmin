@@ -4,6 +4,7 @@ import {bindActionCreators} from 'redux';
 import * as courseActions from '../../actions/courseActions';
 import CourseForm from './CourseForm';
 import toastr from 'toastr';
+import { browserHistory } from 'react-router';
 
 class ManageCoursePage extends React.Component {
   constructor(props, context) {
@@ -64,6 +65,10 @@ ManageCoursePage.propTypes = {
   course: PropTypes.object.isRequired,
   authors: PropTypes.array.isRequired,
   actions: PropTypes.object.isRequired
+};
+
+ManageCoursePage.contextTypes ={
+  router: PropTypes.object
 };
 
 function getCourseById(courses, id) {

@@ -2,7 +2,7 @@ import React, {PropTypes} from 'react';
 import {Link} from 'react-router';
 
 const CourseListRow = ({course}) => {
-  return(
+  return (
     <tr>
       <td><a href={course.watchHref} target="_blank">Watch</a></td>
       <td><Link to={'/course/' + course.id}>{course.title}</Link></td>
