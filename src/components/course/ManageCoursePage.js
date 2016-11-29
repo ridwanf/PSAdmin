@@ -9,7 +9,6 @@ import { browserHistory } from 'react-router';
 class ManageCoursePage extends React.Component {
   constructor(props, context) {
     super(props,context);
-
     this.state ={
       course: Object.assign({},props.course),
       errors: {},
@@ -37,7 +36,6 @@ class ManageCoursePage extends React.Component {
 
   saveCourse(event) {
     event.preventDefault();
-    this.setState({saving:true});
     this.props.actions.saveCourse(this.state.course)
     .then(()=> this.redirect())
     .catch(error => {
@@ -49,6 +47,7 @@ class ManageCoursePage extends React.Component {
   redirect(){
     this.setState({saving:false});
     toastr.success('Course Saved');
+    this.props.actions.saveCourse(this.state.course);
     this.context.router.push('/courses');
   }
 
@@ -71,42 +70,42 @@ ManageCoursePage.propTypes = {
   actions: PropTypes.object.isRequired
 };
 
-ManageCoursePage.contextTypes ={
-  router: PropTypes.object
+//pull in the react router context so router is available on this.context.router.
+ManageCoursePage.contextTypes = {
+router: PropTypes.object.isRequired
 };
 
 function getCourseById(courses, id) {
-  const course = courses.filter(course => course.id ==id);
-  if (course) {
+  const course = courses.filter(course => course.id === id);
+  if (course)
     return course[0];
-  }
   return null;
 }
 
-  function mapStateToProps(state,ownProps) {
-    const courseId = ownProps.params.id;
-    let course = {id: '', watchHref: '', title: '', authorId: '', length: '', category: ''};
+function mapStateToProps(state,ownProps) {
+  const courseId = ownProps.params.id;
+  let course = {id: '', watchHref: '', title: '', authorId: '', length: '', category: ''};
 
-    if (courseId && state.courses.length >0) {
-      course = getCourseById(state.courses, courseId);
-    }
-    const authorsFormattedForDropdown = state.authors.map(author => {
-      return {
-        value: author.id,
-        text: author.firstName + ' ' + author.lastName
-      };
-    });
-
-    return {
-      course:course,
-      authors: authorsFormattedForDropdown
-    };
+  if (courseId > state.course.length > 0) {
+    course = getCourseById(state.courses, courseId);
   }
-
-  function mapDispatchToProps(dispatch) {
+  const authorsFormattedForDropdown = state.authors.map(author => {
     return {
-      actions: bindActionCreators(courseActions, dispatch)
+      value: author.id,
+      text: author.firstName + ' ' + author.lastName
     };
-  }
+  });
+
+  return {
+    course:course,
+    authors: authorsFormattedForDropdown
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators(courseActions, dispatch)
+  };
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(ManageCoursePage);
